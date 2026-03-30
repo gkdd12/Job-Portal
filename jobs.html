@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            Jobs list
+        </title>
+        <link rel="icon" type="image/png" href="images/logo.png">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/layout.css">
+        <link rel="stylesheet" href="css/responsive.css">
+    </head>
+    <body>
+        <nav>
+        <a href="login.html"> Login </a>
+        <a href="register.html"> Register </a>
+        <a href="companies.html"> View Companies </a>
+        <a href="index.html">Home</a>
+        </nav> 
+        <div class="container">
+        <div id="jobContainer" >
+        <div class="card">
+            <h3>Full Stack developer</h3>
+            <p id="IBM">IBM</p>
+            <p>Salary: 7000rs. per month</p>
+            <p>Internship</p>
+            <button onclick="showJobDetails('FSD')">view details</button>
+        </div>
+        <div class="card">
+            <h3>SOC analyst</h3>
+            <p id="oracle">oracle</p>
+            <p>Salary: 50000rs. per month</p>
+            <p>Full Time</p>
+            <button onclick="showJobDetails('SOC')">view details</button>
+        </div>
+        <div class="card">
+            <h3>DevOps</h3>
+            <p id="Google">Google</p>
+            <p>Salary: 100000rs. per month</p>
+            <p>Full Time</p>
+            <button onclick="showJobDetails('DevOps')">view details</button>
+        </div>
+        </div>
+        </div>
+        <script src="js/main.js"></script>
+    </body>
+</html>

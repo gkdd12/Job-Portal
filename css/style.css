@@ -1,0 +1,31 @@
+body{
+    background-image: url('../images/hero-bg.jpg');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+.container{
+    display: flex;            /* Enables Flexbox */
+    flex-direction: column;      /* Default: items go top to bottom*/
+    justify-content:center;  /* Moves items to the center horizontally */
+    align-items: center;      /* Moves items to the center vertically */
+    flex-wrap: wrap;          /* Items will drop to next line if no space */
+    min-height: 100vh;            /* Essential for vertical centering */
+    margin: 0;
+    gap: 10px;
+}
+
+table{
+    border-collapse: collapse;
+    width:70%
+}
+
+table,th,td{
+    border:1px solid black;
+    background-color: aqua;
+}
+
+fieldset{
+    background-color: white;
+}

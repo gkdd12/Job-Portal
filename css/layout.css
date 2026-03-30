@@ -1,0 +1,44 @@
+nav{
+    display: flex;
+    justify-content: space-around;
+    background-color: rgba(255, 115, 0, 0.5);
+}
+nav a{
+    flex:1;
+    text-align:center;
+    border: 0.1px solid black;
+}
+nav a:hover{
+    background-color:mediumspringgreen;
+}
+fieldset{
+    background-color: rgba(252, 244, 244, 0.3);
+}
+#jobContainer{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;  /* Allows cards to move to the next line on small screens */
+}
+.container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.details{
+    display: none;
+}
+.card{
+    background-color: rgba(252, 244, 244, 0.3);
+    padding: 10px;
+    margin: 10px;
+    box-shadow: 5px 5px rgba(0, 0, 0, 0.3);
+}
+.details{
+    border:0.5px solid orange;
+    background-color: rgba(252, 244, 244, 0.3);
+    padding:10px;
+    margin: 10px;
+    box-shadow: 5px 5px rgba(0, 0, 0, 0.3);
+}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            Post Job
+        </title>
+        <link rel="icon" type="image/png" href="images/logo.png">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/layout.css">
+        <link rel="stylesheet" href="css/responsive.css">
+    </head>
+    <body>
+        <nav>
+        <a href="dashboard.html"> Dashboard </a>
+        <a href="companies.html"> View Companies </a>
+        <a href="index.html">Home</a>
+        </nav>
+        <div class="container">
+        <form >
+            <fieldset >
+                <legend>Details of Job</legend>
+                <label for="jobTitle">Job Title:</label> <input type="text"><br>
+                <label for="company">Company: </label><input type="text"><br>
+                <label for="salary">Salary:</label> <input type="number"><br>
+                <label for="location">Location:</label><br>
+                <input type="radio" name="location" onclick="deleteLocationField()" id="remote">Remote<br>
+                <input type="radio" name="location" onclick="createLocationField()" id="workplace">work place<br>
+                <div id="locationField"></div>
+                <label for="jobType">Job Type:</label>
+                <select name="job type">
+                    <option>Internship</option>
+                    <option>Contract</option>
+                    <option>Full Time</option>
+                </select><br>
+                <label for="skills">skills:</label><br>
+                <textarea rows="5"></textarea><br>
+                <button onclick="postJob(event)">Post</button>
+            </fieldset>
+        </form>
+        </div>
+        <script src="js/main.js"></script>
+    </body>
+</html>
