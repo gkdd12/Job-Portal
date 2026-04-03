@@ -5,7 +5,7 @@ logout.addEventListener('click' , () => {
     sessionStorage.setItem("loginFlag",0);
 });
 
-function loginSubmit(event){
+async function loginSubmit(event){
     const userId = document.querySelector('input[type="text"]').value;
     const password = document.querySelector('input[type="password"]').value;
 
@@ -14,12 +14,22 @@ function loginSubmit(event){
         event.preventDefault(); // This stops the page from changing to dashboard.html
         //here we use event due to above line it doesn't know which one
     } else {
-        sessionStorage.setItem("loginFlag",1);
-        alert("Welcome, " + userId + "! Logging you in...");
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ userId, password })
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert(data.message);sessionStorage.setItem("loginFlag",1);
+            window.location.href = data.redirect; // Send them to dashboard
+        } else {
+            alert(data.message); // Show "Invalid password!" or "User not found!"
+        }
     }
 }
 
-function registerSubmit(event){
+async function registerSubmit(event){
     const phoneNumber = document.querySelector('input[type="tel"]').value;
     const allTexts = document.querySelectorAll('input[type="text"]');
     const name = allTexts[0].value;
@@ -44,9 +54,20 @@ function registerSubmit(event){
             alert("password and confirm password should be same");
             event.preventDefault();
         }
-        // else{
-        //     alert("u successful registered");
-        // }
+        else{
+            const response = await fetch('/register' , {
+                method:'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name,phoneNumber,nationality,gmail,userID,password})
+            });
+            const data = await response.json();
+            if(data.success){
+                alert(data.message);
+                window.location.href = data.redirect;
+            }else{
+                alert(data.message);
+            }
+        }
     }
 }
 
@@ -66,6 +87,15 @@ function postJob(event){
     if(jobTitle === "" || company === "" || salary.length == 0 || loc === "" || jobType === "" || skills === ""){
         alert("please fill all the texts");
     }else{
+        const workLocation = document.getElementById("workLocation").value;
+        if(loc === "work place"){ 
+            if(workLocation.trim() === ""){alert("pls fill the location");return;}
+        }else if(loc === "Remote"){workLocation=loc;}
+        const resp = fetch('/jobPost' , {
+            method:'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({jobTitle,company,salary,workLocation,jobType,skills})
+        });
         alert("u suceesfully post a job");
         let j = {
             title:jobTitle,

@@ -23,8 +23,9 @@
                 <label for="company">Company: </label><input type="text"><br>
                 <label for="salary">Salary:</label> <input type="number"><br>
                 <label for="location">Location:</label><br>
-                <input type="radio" name="location" onclick="deleteLocationField()" id="remote">Remote<br>
-                <input type="radio" name="location" onclick="createLocationField()" id="workplace">work place<br>
+                <input type="radio" name="location" onclick="deleteLocationField()" id="remote" value="Remote">Remote<br>
+                <input type="radio" name="location" onclick="createLocationField()" id="workplace" value="work place">work place<br>
+                <!-- here the above value is get value of radiobutton which it can used in main.js -->
                 <div id="locationField"></div>
                 <label for="jobType">Job Type:</label>
                 <select name="job type">
