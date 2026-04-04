@@ -4,6 +4,9 @@ logout.textContent = 'Logout';
 logout.addEventListener('click' , () => {
     sessionStorage.setItem("loginFlag",0);
 });
+const dashboard = document.createElement("a");
+dashboard.textContent='DashBoard';
+dashboard.href='dashboard.html';
 
 async function loginSubmit(event){
     const userId = document.querySelector('input[type="text"]').value;
@@ -35,11 +38,11 @@ async function registerSubmit(event){
     const name = allTexts[0].value;
     const nationality = allTexts[1].value;
     const gmail = document.querySelector('input[type="email"]').value;
-    const userID = allTexts[2].value;
+    const userId = allTexts[2].value;
     const passwordsArray = document.querySelectorAll('input[type="password"]');
     const password = passwordsArray[0].value;
     const confirmPassword = passwordsArray[1].value;
-    if(name === "" || nationality === "" || gmail === "" || phoneNumber.trim().length != 10 || userID === ""){
+    if(name === "" || nationality === "" || gmail === "" || phoneNumber.trim().length != 10 || userId === ""){
         if(phoneNumber.trim().length != 10){
             alert("Please fill in all fields and phone number length should be 10");
         }else{
@@ -58,7 +61,7 @@ async function registerSubmit(event){
             const response = await fetch('/register' , {
                 method:'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({name,phoneNumber,nationality,gmail,userID,password})
+                body: JSON.stringify({name,phoneNumber,nationality,gmail,userId,password})
             });
             const data = await response.json();
             if(data.success){
@@ -71,7 +74,7 @@ async function registerSubmit(event){
     }
 }
 
-function postJob(event){
+async function postJob(event){
     event.preventDefault();//it prevents the reload the page, it is faster than windw.loc.href
 
     const allTexts = document.querySelectorAll('input[type="text"]');
@@ -87,24 +90,34 @@ function postJob(event){
     if(jobTitle === "" || company === "" || salary.length == 0 || loc === "" || jobType === "" || skills === ""){
         alert("please fill all the texts");
     }else{
-        const workLocation = document.getElementById("workLocation").value;
+        let workLocation = "";
+        //it changes so we use let
         if(loc === "work place"){ 
-            if(workLocation.trim() === ""){alert("pls fill the location");return;}
+            const tempLoc = document.getElementById("workLocation").value;
+            if(!locInput || locInput.value.trim() === ""){alert("pls fill the location");return;}
+            //the above !locInput is like safty if it not opened so that like precaution
         }else if(loc === "Remote"){workLocation=loc;}
-        const resp = fetch('/jobPost' , {
+        const resp =await fetch('/jobPost' , {
             method:'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({jobTitle,company,salary,workLocation,jobType,skills})
         });
-        alert("u suceesfully post a job");
-        let j = {
-            title:jobTitle,
-            comp:company,
-            payment:salary,
-            type:jobType
-        };
-        sessionStorage.setItem('job', JSON.stringify(j));
-        window.location.href = "jobs.html";
+        const res_data = await resp.json();
+        if(res_data.success){
+            alert(res_data.message);
+            window.location.href = res_data.directLink;
+        }else{
+            alert(res_data.message);
+        }
+        // alert("u suceesfully post a job");
+        // let j = {
+        //     title:jobTitle,
+        //     comp:company,
+        //     payment:salary,
+        //     type:jobType
+        // };
+        // sessionStorage.setItem('job', JSON.stringify(j));
+        // window.location.href = "jobs.html";
     }
 }
 
@@ -132,7 +145,7 @@ function deleteLocationField(){
 }
 
 // Add this logic to run when the Job Details page loads
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
     // Check if we are on the job-details page
 
     const pathway = window.location.pathname;
@@ -147,6 +160,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // logout.addEventListener('click' , () => {
     //     sessionStorage.setItem("loginFlag",1);
     // });
+    if(!pathway.includes("dashboard.html")){navigation.appendChild(dashboard);}
     navigation.appendChild(logout);}
 
     switch(true){
@@ -167,6 +181,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 const allDetails = document.querySelectorAll('.details');
                 allDetails.forEach(div => div.style.display = 'block');
             }
+            break;
 
         case pathway.includes("jobs.html"):
             const company = params.get('company');
@@ -190,29 +205,37 @@ window.addEventListener('DOMContentLoaded', () => {
                 }
             }else{
                 const container = document.getElementById("jobContainer");
-    
-                const tjob = JSON.parse(sessionStorage.getItem('job'));
-            
-                const jobCard = document.createElement("div");
-                jobCard.className = "card";
-            //
-                const title = document.createElement("h3");
-                title.textContent = tjob.title;
-                const company = document.createElement("p");
-                company.textContent = tjob.comp;
-                const salary = document.createElement("p");
-                salary.textContent = "Salary: " + tjob.payment + " per month";
-                const type = document.createElement("p");
-                type.textContent = tjob.type;
-                const deatilsButton = document.createElement("button");
-                deatilsButton.textContent = "view details";
-                deatilsButton.addEventListener('click',function() {
-                showJobDetails(tjob.title);
-                })
-
-                jobCard.append(title, company, salary, type, deatilsButton);
-                container.appendChild(jobCard);
+                const resp = await fetch('/jobs',{
+                    method:'GET',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                if(resp.ok){
+                    const jobsList = await resp.json();
+                    for(const tjob of jobsList){
+                        const jobCard = document.createElement("div");
+                        jobCard.className = "card";
+                        const title = document.createElement("h3");
+                        title.textContent = tjob.jobTitle;
+                        const company = document.createElement("p");
+                        company.textContent = tjob.company;
+                        const salary = document.createElement("p");
+                        salary.textContent = "Salary: " + tjob.salary + " per month";
+                        const type = document.createElement("p");
+                        type.textContent = tjob.jobType;
+                        const deatilsButton = document.createElement("button");
+                        deatilsButton.textContent = "view details";
+                        deatilsButton.addEventListener('click',function() {
+                        showJobDetails(tjob.jobTitle);
+                        })
+                        jobCard.append(title, company, salary, type, deatilsButton);
+                        container.appendChild(jobCard);
+                    }
+                }else{
+                    const msg = (await resp.json()).message;
+                    alert(msg);
+                }
             }
+            break;
 
         case pathway.includes("index.html"):
             if(sessionStorage.getItem("loginFlag") === '1'){
@@ -221,5 +244,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 links[0].style.display = 'none';
                 links[1].style.display = 'none';
             }
+            break;
     }
 });

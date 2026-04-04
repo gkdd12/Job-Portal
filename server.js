@@ -76,9 +76,9 @@ app.post('/jobPost', async(req,res) => {
     try{
     const newJob = await job.create(req.body);
     if(newJob){
-        res.status(500).json({success:false , message: "succesful to create"});
+        res.status(201).json({success:false , message: "succesful to create", directLink:"jobs.html"});
     }else{
-        res.status(500).json({success:false , message: "Failed to create"});
+        res.status(401).json({success:false , message: "Failed to create"});
     }}catch(err){
         console.error(err);
         res.status(500).json({success: false , message: err});
@@ -87,10 +87,20 @@ app.post('/jobPost', async(req,res) => {
 
 app.get('/jobs',async(req,res)=>{
     try{
-
+        const allJobs = await job.find({});// This returns an array of every job in the 'jobs' collection
+        res.json(allJobs);
     }catch(err){
         console.error(err);
-        res.status(500).json({success: false , message: err});
+        res.status(500).json({message: err});
+    }
+});
+
+app.get('/jobDetails',async(req,res)=>{
+    try{
+        const jobDetail = await job.findByJobTitle(req.query.id);
+        res.json(jobDetail);
+    }catch(err){
+        res.status(500);
     }
 });
 
