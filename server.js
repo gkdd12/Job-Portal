@@ -76,7 +76,7 @@ app.post('/jobPost', async(req,res) => {
     try{
     const newJob = await job.create(req.body);
     if(newJob){
-        res.status(201).json({success:false , message: "succesful to create", directLink:"jobs.html"});
+        res.status(201).json({success:true , message: "succesful to create", directLink:"jobs.html"});
     }else{
         res.status(401).json({success:false , message: "Failed to create"});
     }}catch(err){
@@ -95,12 +95,17 @@ app.get('/jobs',async(req,res)=>{
     }
 });
 
-app.get('/jobDetails',async(req,res)=>{
-    try{
-        const jobDetail = await job.findByJobTitle(req.query.id);
+app.get('/jobDetails', async (req, res) => {
+    try {
+        // Use findOne to match the jobTitle field in your schema
+        const jobDetail = await job.findOne({ jobTitle: req.query.id });
+        if (!jobDetail) {
+            return res.status(404).json({ message: "Job not found" });
+        }
         res.json(jobDetail);
-    }catch(err){
-        res.status(500);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server Error");
     }
 });
 

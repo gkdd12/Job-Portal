@@ -3,6 +3,8 @@ const logout = document.createElement("a");
 logout.textContent = 'Logout';
 logout.addEventListener('click' , () => {
     sessionStorage.setItem("loginFlag",0);
+    alert("u successfully logout");
+    window.location.href="index.html";
 });
 const dashboard = document.createElement("a");
 dashboard.textContent='DashBoard';
@@ -93,9 +95,14 @@ async function postJob(event){
         let workLocation = "";
         //it changes so we use let
         if(loc === "work place"){ 
-            const tempLoc = document.getElementById("workLocation").value;
-            if(!locInput || locInput.value.trim() === ""){alert("pls fill the location");return;}
-            //the above !locInput is like safty if it not opened so that like precaution
+            const locationInputField = document.getElementById("workLocation");
+        
+        if (!locationInputField || locationInputField.value.trim() === "") {
+            alert("Please fill in the specific workplace location");
+            return; 
+        }
+        workLocation = locationInputField.value;
+            //the above !locInputField is like safty if it not opened so that like precaution
         }else if(loc === "Remote"){workLocation=loc;}
         const resp =await fetch('/jobPost' , {
             method:'POST',
@@ -109,15 +116,6 @@ async function postJob(event){
         }else{
             alert(res_data.message);
         }
-        // alert("u suceesfully post a job");
-        // let j = {
-        //     title:jobTitle,
-        //     comp:company,
-        //     payment:salary,
-        //     type:jobType
-        // };
-        // sessionStorage.setItem('job', JSON.stringify(j));
-        // window.location.href = "jobs.html";
     }
 }
 
@@ -144,6 +142,36 @@ function deleteLocationField(){
     //the above removes the field
 }
 
+function createDetail(detail){
+    const dCard = document.createElement("div");
+    dCard.className="details";
+    const role = document.createElement("p");
+    role.textContent="Role:"+detail.jobTitle;
+    const com = document.createElement("p");
+    com.textContent="Company:"+detail.company;
+    const pay = document.createElement("p");
+    pay.textContent="Salary:"+detail.salary;
+    const du = document.createElement("p");
+    du.textContent=detail.jobType;
+    const s = document.createElement("p");
+    s.textContent="Skills:";
+    const list = document.createElement("ul"); 
+    //Split the skills string by commas and newlines
+    // This regex splits by comma OR newline and removes extra spaces
+    const skillsArray = detail.skills.split(/[,\n]/);
+    // creating <li> for each skill
+    skillsArray.forEach(skillText => {
+        const trimmedSkill = skillText.trim();
+        if (trimmedSkill !== "") { // Avoid empty bullet points
+            const li = document.createElement("li");
+            li.textContent = trimmedSkill;
+            list.appendChild(li);
+        }
+    });
+    dCard.append(role,com,pay,du,s,list);
+    return dCard;
+}
+
 // Add this logic to run when the Job Details page loads
 window.addEventListener('DOMContentLoaded', async () => {
     // Check if we are on the job-details page
@@ -155,7 +183,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(sessionStorage.getItem("loginFlag") === '1'){
     const navigation = document.querySelector('nav');
     // const logout = document.createElement("a");
-    logout.href = pathway;
+    if(!(pathway.includes("dashboard.html")||pathway.includes("post-job.html"))){logout.href = pathway;}
+    else{logout.href="index.html";}
     // logout.textContent = 'Logout';
     // logout.addEventListener('click' , () => {
     //     sessionStorage.setItem("loginFlag",1);
@@ -165,21 +194,18 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     switch(true){
         case pathway.includes("job-details.html"):
-            const jobIdToShow = params.get('id');
-
-            if (jobIdToShow) {
-            // 1. Hide all detail divs first
-            // const allDetails = document.querySelectorAll('.details');
-            // allDetails.forEach(div => div.style.display = 'none');
-
-            // 2. Show only the one that matches the ID from the URL
-                const targetDiv = document.getElementById(jobIdToShow);
-                if (targetDiv) {
-                    targetDiv.style.display = 'block';
-                }
+            const jobId = params.get('id');
+            const response = await fetch(`/jobDetails?id=${jobId}`,{
+                method:'GET',
+                headers: {'Content-Type': 'application/json'}
+            });
+            if(response.ok){
+                const details = await response.json();
+                const jobDetail = createDetail(details);
+                const container = document.getElementById("Detailss");
+                container.appendChild(jobDetail);
             }else{
-                const allDetails = document.querySelectorAll('.details');
-                allDetails.forEach(div => div.style.display = 'block');
+                alert("unsuccessful fetch the details");
             }
             break;
 

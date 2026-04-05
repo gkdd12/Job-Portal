@@ -26,9 +26,9 @@ fieldset{
     justify-content: center;
     flex-wrap: wrap;
 }
-.details{
+/* .details{
     display: none;
-}
+} */
 .card{
     background-color: rgba(252, 244, 244, 0.3);
     padding: 10px;
