@@ -87,8 +87,12 @@ app.post('/jobPost', async(req,res) => {
 
 app.get('/jobs',async(req,res)=>{
     try{
+        if(req.query.company){
+            const jobByCompany = await job.find({company: req.query.company});
+            res.json(jobByCompany);
+        }else{
         const allJobs = await job.find({});// This returns an array of every job in the 'jobs' collection
-        res.json(allJobs);
+        res.json(allJobs);}
     }catch(err){
         console.error(err);
         res.status(500).json({message: err});
@@ -104,6 +108,34 @@ app.get('/jobDetails', async (req, res) => {
         }
         res.json(jobDetail);
     } catch (err) {
+        console.error(err);
+        res.status(500).send("Server Error");
+    }
+});
+
+app.get('/company',async(req,res)=>{
+    try{
+        const companyContent = await job.aggregate([
+            {
+                $group:{
+                    _id:{
+                        company:"$company",location:"$location"
+                    },
+                    noOfPosts:{$sum:1}
+                }
+            },
+            {
+                // Step 3: Clean up the output format
+                $project: {
+                    _id: 0, // Hide the default _id
+                    company: "$_id.company",
+                    location: "$_id.location",
+                    noOfPosts: 1
+                }
+            }
+        ]);
+        res.json(companyContent);
+    }catch(err){
         console.error(err);
         res.status(500).send("Server Error");
     }

@@ -104,10 +104,11 @@ async function postJob(event){
         workLocation = locationInputField.value;
             //the above !locInputField is like safty if it not opened so that like precaution
         }else if(loc === "Remote"){workLocation=loc;}
+        const location = workLocation;
         const resp =await fetch('/jobPost' , {
             method:'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({jobTitle,company,salary,workLocation,jobType,skills})
+            body: JSON.stringify({jobTitle,company,salary,location,jobType,skills})
         });
         const res_data = await resp.json();
         if(res_data.success){
@@ -172,6 +173,52 @@ function createDetail(detail){
     return dCard;
 }
 
+function createJobBox(tjob,container){
+    const jobCard = document.createElement("div");
+    jobCard.className = "card";
+    const title = document.createElement("h3");
+    title.textContent = tjob.jobTitle;
+    const company = document.createElement("p");
+    company.textContent = tjob.company;
+    const salary = document.createElement("p");
+    salary.textContent = "Salary: " + tjob.salary + " per month";
+    const type = document.createElement("p");
+    type.textContent = tjob.jobType;
+    const deatilsButton = document.createElement("button");
+    deatilsButton.textContent = "view details";
+    deatilsButton.addEventListener('click',function() {
+    showJobDetails(tjob.jobTitle);
+    })
+    jobCard.append(title, company, salary, type, deatilsButton);
+    container.appendChild(jobCard);
+}
+
+async function createCompanyDirectory(){
+    const tableConatiner = document.getElementById("companyTable");
+    const response = await fetch('/company',{
+        method:'GET',
+        // headers:{'Content-type' : 'application/json'} //it is for when sends a data from here
+    });
+    const data = await response.json();
+    if(response.ok){
+        for(const companyDetail of data){
+            const tr = document.createElement("tr");
+            tr.onclick=() => companyFilter(companyDetail.company);
+            tr.style.cursor="pointer";
+            const td1 = document.createElement("td");
+            td1.textContent=companyDetail.company;
+            const td2 = document.createElement("td");
+            td2.textContent=companyDetail.location;
+            const td3 = document.createElement("td");
+            td3.textContent=companyDetail.noOfPosts;
+            tr.append(td1,td2,td3);
+            tableConatiner.appendChild(tr);
+        }
+    }else{
+        alert("we unable to load");
+    }
+}
+
 // Add this logic to run when the Job Details page loads
 window.addEventListener('DOMContentLoaded', async () => {
     // Check if we are on the job-details page
@@ -210,58 +257,24 @@ window.addEventListener('DOMContentLoaded', async () => {
             break;
 
         case pathway.includes("jobs.html"):
-            const company = params.get('company');
-        
-            if(sessionStorage.getItem("loginFlag") === '1'){
-                //hiding
-                const links = document.querySelectorAll("nav a");//to target nav
-                links[0].style.display = 'none';
-                links[1].style.display = 'none';
+        const company = params.get('company');
+        const container = document.getElementById("jobContainer");
+    
+        // Construct the URL
+        const url = company ? `/jobs?company=${company}` : '/jobs';
+    
+        const resp = await fetch(url, { method: 'GET' });
+    
+        if(resp.ok) {
+            const jobsList = await resp.json();
+            //container.innerHTML = ""; // Clear existing jobs
+            for(const tjob of jobsList) {
+                createJobBox(tjob, container);
             }
-
-            if(company){
-            // Hide all cards
-                const allCards = document.querySelectorAll('.card');
-                allCards.forEach(card => card.style.display = 'none');
-
-            // Find the p tag with the company ID, then show its parent .card
-                const companyLabel = document.getElementById(company);
-                if (companyLabel) {
-                    companyLabel.parentElement.style.display = 'block';
-                }
-            }else{
-                const container = document.getElementById("jobContainer");
-                const resp = await fetch('/jobs',{
-                    method:'GET',
-                    headers: {'Content-Type': 'application/json'}
-                });
-                if(resp.ok){
-                    const jobsList = await resp.json();
-                    for(const tjob of jobsList){
-                        const jobCard = document.createElement("div");
-                        jobCard.className = "card";
-                        const title = document.createElement("h3");
-                        title.textContent = tjob.jobTitle;
-                        const company = document.createElement("p");
-                        company.textContent = tjob.company;
-                        const salary = document.createElement("p");
-                        salary.textContent = "Salary: " + tjob.salary + " per month";
-                        const type = document.createElement("p");
-                        type.textContent = tjob.jobType;
-                        const deatilsButton = document.createElement("button");
-                        deatilsButton.textContent = "view details";
-                        deatilsButton.addEventListener('click',function() {
-                        showJobDetails(tjob.jobTitle);
-                        })
-                        jobCard.append(title, company, salary, type, deatilsButton);
-                        container.appendChild(jobCard);
-                    }
-                }else{
-                    const msg = (await resp.json()).message;
-                    alert(msg);
-                }
-            }
-            break;
+        } else {
+            alert("Fetch failed");
+        }
+        break;
 
         case pathway.includes("index.html"):
             if(sessionStorage.getItem("loginFlag") === '1'){
@@ -271,5 +284,8 @@ window.addEventListener('DOMContentLoaded', async () => {
                 links[1].style.display = 'none';
             }
             break;
+
+        case pathway.includes("companies.html"):
+            createCompanyDirectory();
     }
 });
