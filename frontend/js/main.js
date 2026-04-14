@@ -27,6 +27,7 @@ async function loginSubmit(event){
         const data = await response.json();
         if (data.success) {
             alert(data.message);sessionStorage.setItem("loginFlag",1);
+            sessionStorage.setItem("userName",userId);
             window.location.href = data.redirect; // Send them to dashboard
         } else {
             alert(data.message); // Show "Invalid password!" or "User not found!"
@@ -219,6 +220,32 @@ async function createCompanyDirectory(){
     }
 }
 
+async function createMyPosts(){
+    const cont = document.getElementById("myPostedJobs");
+    const resp = await fetch('/myPosts',{
+        method:'GET',
+        header:{'Content-type' : 'application-json'},
+        body:json.stringify(sessionStorage.getItem("userName"))
+    });
+    if(resp.ok){
+    const data = await resp.json();
+    for(posts in data){
+        const post = document.createElement("div");
+        const title = document.createElement("h3");
+        title.textContent = posts.jobTitle;
+        const salary = document.createElement("p");
+        salary.textContent = posts.salary;
+        const update = document.createElement("button");
+        update.textContent = "Update Post";
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "delete Post";
+        post.append(title,salary,update,deleteButton);
+        cont.appendChild(post);
+    }}else{
+        alert("unable to fetch");
+    }
+}
+
 // Add this logic to run when the Job Details page loads
 window.addEventListener('DOMContentLoaded', async () => {
     // Check if we are on the job-details page
@@ -287,5 +314,10 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         case pathway.includes("companies.html"):
             createCompanyDirectory();
+            break;
+
+        case pathway.includes("dashboard.html"):
+            createMyPosts();
+            break;
     }
 });

@@ -30,7 +30,8 @@ const jobSchema = mongoose.Schema({
     salary:Number,
     location:String,
     jobType:String,
-    skills:String
+    skills:String,
+    userId:String//<--updated
 });
 const job = mongoose.model('job',jobSchema);
 
@@ -139,6 +140,16 @@ app.get('/company',async(req,res)=>{
         console.error(err);
         res.status(500).send("Server Error");
     }
+});
+
+app.get('/myPosts',async (req,res)=>{
+    try{
+        const posts = job.find({userId:req.body});
+        res.json(posts);
+    }catch(err){
+        res.send("server error");
+    }
+
 });
 
 const PORT = 3000;
